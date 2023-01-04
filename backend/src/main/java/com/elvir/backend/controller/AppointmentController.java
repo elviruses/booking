@@ -1,6 +1,6 @@
 package com.elvir.backend.controller;
 
-import com.elvir.backend.model.dto.AppointmentDto;
+import com.elvir.backend.model.dto.FreeTimeDto;
 import com.elvir.backend.service.appointment.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @GetMapping("/appointment/{employee_id}/{service_id}")
-    public AppointmentDto get(@PathVariable("employee_id") UUID uuidEmployee, @PathVariable("service_id") UUID uuidService) {
+    public FreeTimeDto get(@PathVariable("employee_id") UUID uuidEmployee, @PathVariable("service_id") UUID uuidService) {
         return appointmentService.get(uuidEmployee, uuidService);
     }
 }

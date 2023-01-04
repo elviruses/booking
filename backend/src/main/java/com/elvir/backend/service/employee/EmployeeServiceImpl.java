@@ -42,7 +42,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     public void update(UUID uuid, EmployeeInfo employeeInfo) {
         Employee employee = employeeRepository.findById(uuid).orElseThrow(RuntimeException::new);
-        employeeRepository.save(filledEmployee(employee, employeeInfo));
+        employee.updateByEmployeeInfo(employeeInfo);
+        employeeRepository.save(employee);
     }
 
     @Override
@@ -75,58 +76,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     public void addSkill(UUID uuid, List<UUID> servicingUUIDs) {
         Employee employee = employeeRepository.findById(uuid).orElseThrow(RuntimeException::new);
-        List<Servicing> servicings = servicingRepository.findAllById(servicingUUIDs);
-        employee.getSkills().addAll(servicings);
+        List<Servicing> servicingList = servicingRepository.findAllById(servicingUUIDs);
+        employee.getSkills().addAll(servicingList);
         employeeRepository.save(employee);
-    }
-
-    private Employee filledEmployee(Employee employee, EmployeeInfo employeeInfo) {
-        employee.setFirstName(employeeInfo.getFirstName());
-        employee.setLastName(employeeInfo.getLastName());
-        employee.setBirthday(employeeInfo.getBirthday());
-        employee.setStartTime(employeeInfo.getStartTime());
-        employee.setEndTime(employeeInfo.getEndTime());
-        return employee;
-    }
-
-    private List<Appointment> generateAppointmentListForEmployee(Employee employee) {
-        List<Appointment> appointmentList = new ArrayList<>();
-
-        int countDay = 14;
-        int countWorkDay = employee.getWorkDays();
-        int countDayOff = employee.getOffDays();
-
-        LocalDate currentDay = LocalDate.now();
-
-        for (int i = 0; i < countDay; i++) {
-            if (countWorkDay != 0) {
-                countWorkDay--;
-                Appointment appointment = Appointment.builder()
-                        .type(TypeAppointment.SERVICE)
-                        .employee(employee)
-                        .startTime(currentDay.atTime(employee.getLunchStart()))
-                        .endTime(currentDay.atTime(employee.getLunchEnd()))
-                        .build();
-                appointmentList.add(appointment);
-                if (countWorkDay == 0) {
-                    countDayOff = employee.getOffDays();
-                }
-            } else if (countDayOff != 0) {
-                countDayOff--;
-                Appointment appointment = Appointment.builder()
-                        .type(TypeAppointment.SERVICE)
-                        .employee(employee)
-                        .startTime(currentDay.atTime(employee.getStartTime()))
-                        .endTime(currentDay.atTime(employee.getEndTime()))
-                        .build();
-                appointmentList.add(appointment);
-                if (countDayOff == 0) {
-                    countWorkDay = employee.getWorkDays();
-                }
-            }
-            currentDay = currentDay.plusDays(1);
-        }
-
-        return appointmentList;
     }
 }

@@ -1,5 +1,6 @@
 package com.elvir.backend.model.entity;
 
+import com.elvir.backend.model.request.ClientInfo;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -37,4 +38,10 @@ public class Client {
 
     @Column(name = "sent_code")
     private String sentCode;
+
+    public void updateByClientInfo(ClientInfo clientInfo) {
+        this.firstName = clientInfo.getFirstName();
+        this.lastName = clientInfo.getLastName();
+        this.phone = clientInfo.getPhone();
+    }
 }

@@ -1,13 +1,10 @@
 package com.elvir.handlers;
 
-import com.elvir.entity.Client;
-import com.elvir.repo.ClientRepository;
-import com.elvir.util.BotConfig;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.elvir.library.mq.TelegramMessage;
+import com.elvir.utils.BotConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -16,9 +13,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Service
 @RequiredArgsConstructor
 public class ChannelHandlers extends TelegramLongPollingBot {
-
-    private final ObjectMapper mapper = new ObjectMapper();
-    private final ClientRepository clientRepository;
 
     @Override
     public String getBotUsername() {
@@ -45,21 +39,17 @@ public class ChannelHandlers extends TelegramLongPollingBot {
         }
     }
 
-    @RabbitListener(queues = "test-queue")
-    @Transactional
-    public void listen(SendVerifyCode sendVerifyCode) {
-        System.out.println("Message read from myQueue : " + sendVerifyCode);
-        Client client = clientRepository.findById(sendVerifyCode.getUuidClient()).orElseThrow(RuntimeException::new);
-        String random = String.valueOf((int) (Math.random() * 10000));
+    @RabbitListener(queues = "${rabbitmq.telegram}")
+    public void listen(TelegramMessage telegramMessage) {
+        System.out.println("Message read from myQueue : " + telegramMessage);
+
         SendMessage message = new SendMessage();
-        message.setChatId(sendVerifyCode.getChatId());
-        message.setText(String.format("Ваш проверочный код: %s", random));
+        message.setChatId(telegramMessage.getChatId());
+        message.setText(telegramMessage.getMessage());
         try {
             execute(message);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-        client.setSentCode(random);
-        clientRepository.save(client);
     }
 }

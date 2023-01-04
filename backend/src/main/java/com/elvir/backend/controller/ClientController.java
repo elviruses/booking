@@ -43,8 +43,8 @@ public class ClientController {
         return clientService.getList();
     }
 
-    @PostMapping("/client/{phone}/verify")
-    public void sendCode(@PathVariable("phone") Long phone) {
-        clientService.sendCode(phone);
+    @PostMapping("/client/{id}/verify")
+    public void sendVerifyCode(@PathVariable("id") UUID uuid) {
+        clientService.sendVerifyCode(uuid);
     }
 }

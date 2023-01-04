@@ -11,10 +11,17 @@ public class RabbitMQSender {
 
     private final AmqpTemplate rabbitTemplate;
 
-    @Value("${rabbitmq.queue}")
-    String queueName;
+    @Value("${rabbitmq.telegram}")
+    String telegramQueueName;
 
-    public void send(Object obj) {
-        rabbitTemplate.convertAndSend(queueName, obj);
+    @Value("${rabbitmq.whatsapp}")
+    String whatsAppQueueName;
+
+    public void sendToTelegram(Object obj) {
+        rabbitTemplate.convertAndSend(telegramQueueName, obj);
+    }
+
+    public void sendToWhatsApp(Object obj) {
+        rabbitTemplate.convertAndSend(whatsAppQueueName, obj);
     }
 }

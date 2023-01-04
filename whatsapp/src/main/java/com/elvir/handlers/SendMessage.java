@@ -1,5 +1,7 @@
-package com.elvir;
+package com.elvir.handlers;
 
+import com.elvir.library.mq.WhatsAppMessage;
+import com.elvir.utils.Utils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -11,29 +13,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class SendMessage {
 
-    private final static String FIRST_PART_URL = "https://web.whatsapp.com/send/?phone=%2B";
-    private final static String SECOND_PART_URL = "&text&type=phone_number&app_absent=0";
-
     private WebDriver browser;
 
     SendMessage() {
-        System.setProperty("webdriver.chrome.driver", new ClassPathResource("android.png").getPath());
+        System.setProperty("webdriver.chrome.driver", new ClassPathResource("chromedriver.exe").getPath());
         browser = new ChromeDriver();
         browser.get("https://web.whatsapp.com");
     }
 
-    @RabbitListener(queues = "test-queue")
-    public void sendMessage(String phoneNumber) {
-        String url = buildUrl(phoneNumber);
+    @RabbitListener(queues = "${rabbitmq.whatsapp}")
+    public void sendMessage(WhatsAppMessage whatsAppMessage) {
+        String url = Utils.buildUrl(whatsAppMessage.getPhone());
         browser.get(url);
 
         WebElement webElement = getInput();
-        webElement.sendKeys("123");
+        webElement.sendKeys(whatsAppMessage.getMessage());
         browser.findElement(By.xpath("//*[@id=\"main\"]/footer/div[1]/div/span[2]/div/div[2]/div[2]")).click();
-    }
-
-    private String buildUrl(String phoneNumber) {
-        return FIRST_PART_URL + phoneNumber + SECOND_PART_URL;
     }
 
     private WebElement getInput() {

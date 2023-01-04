@@ -1,4 +1,4 @@
-package com.elvir;
+package com.elvir.config;
 
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -11,9 +11,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMqConf {
-
-    @Value("${rabbitmq.queue}")
-    String queueName;
 
     @Bean
     public MessageConverter jsonMessageConverter() {

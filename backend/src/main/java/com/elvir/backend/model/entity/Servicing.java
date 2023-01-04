@@ -1,5 +1,6 @@
 package com.elvir.backend.model.entity;
 
+import com.elvir.backend.model.request.ServicingInfo;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -39,4 +40,10 @@ public class Servicing {
             joinColumns = @JoinColumn(name = "service_id"),
             inverseJoinColumns = @JoinColumn(name = "employee_id"))
     private Set<Employee> employeeSet;
+
+    public void updateByServicingInfo(ServicingInfo servicingInfo) {
+        this.nameService = servicingInfo.getNameService();
+        this.description = servicingInfo.getDescription();
+        this.timeService = servicingInfo.getTimeService();
+    }
 }

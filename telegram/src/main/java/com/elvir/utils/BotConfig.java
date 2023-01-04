@@ -1,4 +1,4 @@
-package com.elvir.util;
+package com.elvir.utils;
 
 public class BotConfig {
 

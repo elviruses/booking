@@ -12,19 +12,26 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConf {
 
-    @Value("${rabbitmq.queue}")
-    String queueName;
+    @Value("${rabbitmq.telegram}")
+    String telegramQueueName;
+
+    @Value("${rabbitmq.whatsapp}")
+    String whatsAppQueueName;
 
     @Bean
-    public Queue myQueue() {
-        return new Queue(queueName, false);
+    public Queue telegramQueue() {
+        return new Queue(telegramQueueName, false);
+    }
+
+    @Bean
+    public Queue whatsAppQueue() {
+        return new Queue(whatsAppQueueName, false);
     }
 
     @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
-
 
     @Bean
     public AmqpTemplate rabbitTemplate(ConnectionFactory connectionFactory) {

@@ -24,17 +24,15 @@ public class ServicingServiceImpl implements ServicingService {
     @Override
     @Transactional
     public void create(ServicingInfo servicingInfo) {
-        Servicing servicing = MAPPER.servicingInfoToServicing(servicingInfo);
+        final Servicing servicing = MAPPER.servicingInfoToServicing(servicingInfo);
         servicingRepository.save(servicing);
     }
 
     @Override
     @Transactional
     public void update(UUID uuid, ServicingInfo servicingInfo) {
-        Servicing servicing = servicingRepository.findById(uuid).orElseThrow(RuntimeException::new);
-        servicing.setNameService(servicingInfo.getNameService());
-        servicing.setDescription(servicingInfo.getDescription());
-        servicing.setTimeService(servicingInfo.getTimeService());
+        final Servicing servicing = servicingRepository.findById(uuid).orElseThrow(RuntimeException::new);
+        servicing.updateByServicingInfo(servicingInfo);
         servicingRepository.save(servicing);
     }
 
@@ -47,7 +45,7 @@ public class ServicingServiceImpl implements ServicingService {
     @Override
     @Transactional(readOnly = true)
     public ServicingDto get(UUID uuid) {
-        Servicing servicing = servicingRepository.findById(uuid).orElseThrow(RuntimeException::new);
+        final Servicing servicing = servicingRepository.findById(uuid).orElseThrow(RuntimeException::new);
         return MAPPER.servicingToServicingDto(servicing);
     }
 

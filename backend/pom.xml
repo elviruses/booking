@@ -7,17 +7,10 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.elvir</groupId>
   <artifactId>backend</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>backend</name>
   <description>backend for booking</description>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -47,10 +40,18 @@
       <version>1.5.3.Final</version>
     </dependency>
     <dependency>
-      <groupId>com.googlecode.libphonenumber</groupId>
-      <artifactId>libphonenumber</artifactId>
-      <version>8.13.2</version>
+      <groupId>com.elvir</groupId>
+      <artifactId>library</artifactId>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>

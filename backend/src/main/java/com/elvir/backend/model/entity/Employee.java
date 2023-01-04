@@ -1,5 +1,6 @@
 package com.elvir.backend.model.entity;
 
+import com.elvir.backend.model.request.EmployeeInfo;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -56,4 +57,12 @@ public class Employee {
 
     @ManyToMany(mappedBy = "employeeSet")
     private Set<Servicing> skills;
+
+    public void updateByEmployeeInfo(EmployeeInfo employeeInfo) {
+        this.firstName = employeeInfo.getFirstName();
+        this.lastName = employeeInfo.getLastName();
+        this.birthday = employeeInfo.getBirthday();
+        this.startTime = employeeInfo.getStartTime();
+        this.endTime = employeeInfo.getEndTime();
+    }
 }

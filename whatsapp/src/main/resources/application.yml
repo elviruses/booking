@@ -1,5 +1,5 @@
 rabbitmq:
-  queue: test-queue
+  whatsapp: whatsapp-queue
 
 spring:
   rabbitmq:

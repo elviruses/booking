@@ -6,6 +6,9 @@ import com.elvir.backend.model.repo.ClientRepository;
 import com.elvir.backend.service.mq.RabbitMQSender;
 import com.elvir.backend.model.mapper.ClientMapper;
 import com.elvir.backend.model.request.ClientInfo;
+import com.elvir.backend.utils.RandomUtil;
+import com.elvir.library.mq.TelegramMessage;
+import com.elvir.library.mq.WhatsAppMessage;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
@@ -26,15 +29,16 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public void create(ClientInfo clientInfo) {
-        Client client = buildClient(clientInfo);
+        final Client client = MAPPER.ClientInfoToClient(clientInfo);
         clientRepository.save(client);
     }
 
     @Override
     @Transactional
     public void update(UUID uuid, ClientInfo clientInfo) {
-        Client client = clientRepository.findById(uuid).orElseThrow(RuntimeException::new);
-        clientRepository.save(filledClient(client, clientInfo));
+        final Client client = clientRepository.findById(uuid).orElseThrow(RuntimeException::new);
+        client.updateByClientInfo(clientInfo);
+        clientRepository.save(client);
     }
 
     @Override
@@ -51,7 +55,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional(readOnly = true)
     public ClientDto get(UUID uuid) {
-        Client client = clientRepository.findById(uuid).orElseThrow(RuntimeException::new);
+        final Client client = clientRepository.findById(uuid).orElseThrow(RuntimeException::new);
         return MAPPER.clientToClientDto(client);
     }
 
@@ -64,23 +68,25 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public void sendCode(Long phone) {
-        rabbitSender.send(phone.toString());
-    }
-
-    private Client buildClient(ClientInfo clientInfo) {
-        return Client.builder()
-                .firstName(clientInfo.getFirstName())
-                .lastName(clientInfo.getLastName())
-                .phone(clientInfo.getPhone())
-                .build();
-    }
-
-    private Client filledClient(Client client, ClientInfo clientInfo) {
-        client.setFirstName(clientInfo.getFirstName());
-        client.setLastName(clientInfo.getLastName());
-        client.setPhone(clientInfo.getPhone());
-        return client;
+    @Transactional
+    public void sendVerifyCode(UUID uuid) {
+        String randomCode = RandomUtil.generateRandomVerifyCode();
+        String message = String.format("Ваш проверочный код: %s", randomCode);
+        final Client client = clientRepository.findById(uuid).orElseThrow(RuntimeException::new);
+        if (client.getChatId() != null) {
+            TelegramMessage telegramMessage = TelegramMessage.builder()
+                    .chatId(client.getChatId())
+                    .message(message)
+                    .build();
+            rabbitSender.sendToTelegram(telegramMessage);
+        } else {
+            WhatsAppMessage whatsAppMessage = WhatsAppMessage.builder()
+                    .phone(client.getPhone().toString())
+                    .message(message)
+                    .build();
+            rabbitSender.sendToWhatsApp(whatsAppMessage);
+        }
+        client.setSentCode(randomCode);
+        clientRepository.save(client);
     }
 }

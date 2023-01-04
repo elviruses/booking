@@ -2,7 +2,8 @@ server:
   port: ${APPLICATION_PORT:8081}
 
 rabbitmq:
-  queue: test-queue
+  telegram: telegram-queue
+  whatsapp: whatsapp-queue
 
 spring:
   rabbitmq:
